@@ -15,20 +15,20 @@ import com.nelricksoft.restaurante.restaurante.repositories.PedidoRepository;
 public class PedidoService {
     private final PedidoRepository pedidoRepository;
 
-    //** Inyeccion de dependencias  *****/
-    public PedidoService(PedidoRepository pedidoRepository){
+    // ** Inyeccion de dependencias *****/
+    public PedidoService(PedidoRepository pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
     }
 
-    //**** Metodos para crear un nuevo pedido ****/
+    // **** Metodos para crear un nuevo pedido ****/
 
-    public PedidoResponseDTO CrearPedido(PedidoRequestDTO pedidoRequestDTO){
+    public PedidoResponseDTO CrearPedido(PedidoRequestDTO pedidoRequestDTO) {
         // Convertir dto de entrada a entidad pedido **
         Pedido nuevoPedido = new Pedido();
         nuevoPedido.setFecha(pedidoRequestDTO.getFecha());
         nuevoPedido.setCliente(pedidoRequestDTO.getCliente());
         nuevoPedido.setSede(pedidoRequestDTO.getSede());
-        
+
         // Asignar los detalles y la relación inversa antes de guardar
         List<com.nelricksoft.restaurante.restaurante.entities.DetallePedido> detalles = pedidoRequestDTO.getDetalles();
         if (detalles != null) {
@@ -37,27 +37,27 @@ public class PedidoService {
             }
         }
         nuevoPedido.setDetalles(detalles);
-        
+
         nuevoPedido.setTotal(pedidoRequestDTO.getTotal());
 
         // Guardar la entidad en la base de datos */
         Pedido pedidoGuardado = pedidoRepository.save(nuevoPedido);
-        //***** COnvertir la entidad guardada a DTO */
+        // ***** COnvertir la entidad guardada a DTO */
         return Convertir_A_DTO(pedidoGuardado);
     }
 
-    //**** Metodo para obtener todos los pedidos ***/
-    public List<PedidoResponseDTO> ObtenerTodosLosPedidos(){
+    // **** Metodo para obtener todos los pedidos ***/
+    public List<PedidoResponseDTO> ObtenerTodosLosPedidos() {
         List<Pedido> pedidos = pedidoRepository.findAll();
         return pedidos.stream().map(this::Convertir_A_DTO).collect(Collectors.toList());
     }
 
     // Metodo Convertir a DTO *****
-    public PedidoResponseDTO Convertir_A_DTO(Pedido pedido){
+    public PedidoResponseDTO Convertir_A_DTO(Pedido pedido) {
         PedidoResponseDTO dto = new PedidoResponseDTO();
         dto.setFecha(pedido.getFecha());
         dto.setCliente(pedido.getCliente());
-        dto.setCliente(pedido.getCliente());
+
         dto.setSede(pedido.getSede());
         dto.setDetalles(pedido.getDetalles());
         dto.setTotal(pedido.getTotal());
@@ -66,26 +66,32 @@ public class PedidoService {
 
     }
 
-    //**** Metodo para obtener Pedido por id */
-    public PedidoResponseDTO ObtenerPedidoPorId(Integer id){
+    // **** Metodo para obtener Pedido por id */
+    public PedidoResponseDTO ObtenerPedidoPorId(Integer id) {
         Pedido pedido = pedidoRepository.findById(id)
-        .orElseThrow(()->new ResourceNotFoundExceptions("Pedido no encontrado con el ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundExceptions("Pedido no encontrado con el ID: " + id));
         return Convertir_A_DTO(pedido);
 
     }
 
-    //** Update -> Actulizar pedido */
-    public PedidoResponseDTO ActulizarPedido(Integer id, PedidoRequestDTO pedidoRequestDTO){
+    // ** Update -> Actulizar pedido */
+    public PedidoResponseDTO ActulizarPedido(Integer id, PedidoRequestDTO pedidoRequestDTO) {
         Pedido pedidoExistente = pedidoRepository.findById(id)
-        .orElseThrow(()->new ResourceNotFoundExceptions("Pedido no encontrado con el ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundExceptions("Pedido no encontrado con el ID: " + id));
+
+        pedidoExistente.setFecha(pedidoRequestDTO.getFecha());
+        pedidoExistente.setCliente(pedidoRequestDTO.getCliente());
+        pedidoExistente.setSede(pedidoRequestDTO.getSede());
+        pedidoExistente.setTotal(pedidoRequestDTO.getTotal());
+
         Pedido pedidoActulizado = pedidoRepository.save(pedidoExistente);
         return Convertir_A_DTO(pedidoActulizado);
 
     }
 
-    //*** Delete -> Eliminar pedido */
-    public void EliminarPedido(Integer id){
-        if(!pedidoRepository.existsById(id)){
+    // *** Delete -> Eliminar pedido */
+    public void EliminarPedido(Integer id) {
+        if (!pedidoRepository.existsById(id)) {
             throw new ResourceNotFoundExceptions("Nose puede eliminar pedido no existente");
 
         }
