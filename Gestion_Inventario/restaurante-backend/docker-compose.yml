@@ -1,0 +1,44 @@
+services:
+  restaurante-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: restaurante-api
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+      - /app/target
+
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/restaurantedb
+      - SPRING_DATASOURCE_USERNAME=restauranteuser
+      - SPRING_DATASOURCE_PASSWORD=restaurantepassword
+
+    depends_on:
+     - postgres-db
+
+  # Use postgres/example user/password credentials
+
+  postgres-db:
+    image: postgres:15
+    container_name: restaurante-db
+    environment:
+      - POSTGRES_USER=restauranteuser
+      - POSTGRES_PASSWORD=restaurantepassword
+      - POSTGRES_DB=restaurantedb
+    
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - restaurante_db_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
+volumes:
+  restaurante_db_data:

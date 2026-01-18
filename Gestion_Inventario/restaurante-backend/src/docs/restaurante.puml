@@ -1,0 +1,147 @@
+@startuml restaurante_diagram
+' ==========================================================
+' 🏗️ DIAGRAMA ENTIDAD-RELACIÓN - SISTEMA DE RESTAURANTE
+' Autor: Java Spring Mentor
+' Fecha: 2025-10-10
+' ==========================================================
+
+hide circle
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #FDF6E3
+  BorderColor #657b83
+  FontColor #073642
+}
+
+title
+  🍽️ SISTEMA DE GESTIÓN DE RESTAURANTE
+  Modelo de datos con Spring Boot + JPA
+end title
+
+
+' ==========================================================
+' ENTIDADES PRINCIPALES
+' ==========================================================
+
+entity "Persona" as PERSONA {
+  *id : INT
+  --
+  nombre : VARCHAR
+  apellido : VARCHAR
+  cedula : VARCHAR
+  email : VARCHAR
+  telefono : VARCHAR
+  cargo : VARCHAR
+  sede_id : INT
+}
+
+entity "Cliente" as CLIENTE {
+  *id : INT
+  --
+  nombre : VARCHAR
+  apellido : VARCHAR
+  documento : VARCHAR
+  fecha_nacimiento : DATE
+  telefono : VARCHAR
+  correo : VARCHAR
+  direccion : TEXT
+  tipo_descuento_id : INT
+}
+
+entity "Sede" as SEDE {
+  *id : INT
+  --
+  nombre_sede : VARCHAR
+  direccion : TEXT
+  telefono : VARCHAR
+}
+
+entity "Tipo" as TIPO {
+  *id : INT
+  --
+  nombre : VARCHAR
+  descripcion : TEXT
+}
+
+entity "TipoDescuento" as TIPO_DESC {
+  *id : INT
+  --
+  nombre_descuento : VARCHAR
+  porcentaje_descuento : DECIMAL(5,2)
+}
+
+entity "Plato" as PLATO {
+  *id : INT
+  --
+  nombre : VARCHAR
+  descripcion : TEXT
+  precio : DECIMAL(10,2)
+  tipo_id : INT
+  tipo_descuento_id : INT
+}
+
+entity "Menu" as MENU {
+  *id : INT
+  --
+  nombre : VARCHAR
+  descripcion : TEXT
+  activo : BOOLEAN
+}
+
+entity "Pedido" as PEDIDO {
+  *id : INT
+  --
+  fecha : TIMESTAMP
+  total : DECIMAL(10,2)
+  estado : VARCHAR
+  cliente_id : INT
+  sede_id : INT
+}
+
+entity "DetallePedido" as DETALLE {
+  *id : INT
+  --
+  pedido_id : INT
+  plato_id : INT
+  cantidad : INT
+  precio_unitario : DECIMAL(10,2)
+  subtotal : DECIMAL(10,2)
+}
+
+entity "MenuPlatos" as MENU_PLATOS {
+  *menu_id : INT
+  *plato_id : INT
+}
+
+' ==========================================================
+' RELACIONES ENTRE ENTIDADES
+' ==========================================================
+
+' 🔹 Sedes y Personas
+SEDE ||--o{ PERSONA : "tiene empleados"
+
+' 🔹 Cliente y Pedido
+CLIENTE ||--o{ PEDIDO : "realiza"
+
+' 🔹 Sede y Pedido
+SEDE ||--o{ PEDIDO : "recibe pedidos"
+
+' 🔹 Pedido y DetallePedido
+PEDIDO ||--o{ DETALLE : "contiene"
+
+' 🔹 DetallePedido y Plato
+PLATO ||--o{ DETALLE : "es referenciado por"
+
+' 🔹 Tipo y Plato
+TIPO ||--o{ PLATO : "clasifica"
+
+' 🔹 TipoDescuento y Cliente
+TIPO_DESC ||--o{ CLIENTE : "aplica descuento a"
+
+' 🔹 TipoDescuento y Plato
+TIPO_DESC ||--o{ PLATO : "descuento asociado"
+
+' 🔹 Menu y Plato (ManyToMany)
+MENU }|--|{ PLATO : "contiene platos"
+
+@enduml
